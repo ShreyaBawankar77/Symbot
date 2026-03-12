@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SymBot — SIT Nagpur</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:       #0b0f1a;
+    --surface:  #111827;
+    --card:     #1a2235;
+    --border:   #2a3a55;
+    --gold:     #f0b429;
+    --gold2:    #f7d070;
+    --teal:     #3ec9c4;
+    --text:     #e8edf5;
+    --muted:    #7b8fa8;
+    --user-bg:  #1e3a5f;
+    --bot-bg:   #162030;
+    --radius:   14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    width: 100%;
+    background: linear-gradient(135deg, #0d1b2e 0%, #0b2545 60%, #091e3a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  }
+  .logo-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #e09000);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700; font-size: 20px; color: #0b0f1a;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(240,180,41,0.4);
+    animation: glow 3s ease-in-out infinite;
+  }
+  @keyframes glow {
+    0%,100% { box-shadow: 0 0 15px rgba(240,180,41,0.3); }
+    50%      { box-shadow: 0 0 30px rgba(240,180,41,0.6); }
+  }
+  .header-text h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.5rem; font-weight: 700;
+    background: linear-gradient(90deg, var(--gold), var(--teal));
+    background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+  }
+  .header-text p {
+    font-size: 0.78rem; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #22c55e;
+    margin-left: auto;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 8px #22c55e;
+  }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+  /* ── STEPS TABS ── */
+  .steps-bar {
+    width: 100%; max-width: 820px;
+    padding: 14px 20px 0;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .step-chip {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.72rem; font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .step-chip:hover { border-color: var(--gold); color: var(--gold); }
+  .step-chip.active { background: var(--gold); color: #0b0f1a; border-color: var(--gold); font-weight: 700; }
+
+  /* ── CHAT AREA ── */
+  .chat-wrapper {
+    width: 100%; max-width: 820px;
+    flex: 1;
+    display: flex; flex-direction: column;
+    padding: 20px 20px 0;
+  }
+  .chat-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    overflow-y: auto;
+    min-height: 360px;
+    max-height: 55vh;
+    display: flex; flex-direction: column; gap: 14px;
+    scroll-behavior: smooth;
+  }
+  .chat-box::-webkit-scrollbar { width: 5px; }
+  .chat-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ── MESSAGES ── */
+  .msg { display: flex; gap: 10px; align-items: flex-start; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .msg.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .bot-avatar  { background: linear-gradient(135deg,#1a3a5c,#0f2a45); border: 1px solid var(--teal); color: var(--teal); font-family: 'Rajdhani',sans-serif; }
+  .user-avatar { background: linear-gradient(135deg,#1e3a5f,#0f2a40); border: 1px solid var(--gold); color: var(--gold); }
+
+  .bubble {
+    max-width: 78%; padding: 12px 16px;
+    border-radius: 12px; line-height: 1.6; font-size: 0.88rem;
+  }
+  .bot-bubble {
+    background: var(--bot-bg);
+    border: 1px solid var(--border);
+    border-top-left-radius: 3px;
+    color: var(--text);
+  }
+  .user-bubble {
+    background: var(--user-bg);
+    border: 1px solid #2a4a70;
+    border-top-right-radius: 3px;
+    color: var(--text);
+  }
+  .bubble pre { white-space: pre-wrap; font-family: inherit; }
+
+  /* Intent badge */
+  .intent-badge {
+    display: inline-block; margin-top: 8px;
+    padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;
+    background: rgba(62,201,196,0.15); color: var(--teal); border: 1px solid rgba(62,201,196,0.3);
+  }
+
+  /* Typing indicator */
+  .typing { display: flex; gap: 5px; padding: 10px 16px; align-items: center; }
+  .typing span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted); animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:scale(0.8)}40%{transform:scale(1.2)} }
+
+  /* ── INPUT BAR ── */
+  .input-area {
+    width: 100%; max-width: 820px;
+    padding: 16px 20px 20px;
+    display: flex; gap: 10px; align-items: flex-end;
+  }
+  .input-wrap {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex; align-items: center;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+  }
+  .input-wrap:focus-within { border-color: var(--gold); }
+  textarea {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text); font-family: 'DM Sans',sans-serif; font-size: 0.9rem;
+    resize: none; max-height: 100px; line-height: 1.5;
+  }
+  textarea::placeholder { color: var(--muted); }
+  .send-btn {
+    width: 44px; height: 44px; border-radius: 10px; border: none;
+    background: linear-gradient(135deg, var(--gold), #d09000);
+    color: #0b0f1a; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .send-btn:hover { transform: scale(1.07); box-shadow: 0 0 15px rgba(240,180,41,0.4); }
+  .send-btn:active { transform: scale(0.96); }
+
+  /* ── QUICK CHIPS ── */
+  .quick-area {
+    width: 100%; max-width: 820px;
+    padding: 0 20px 6px;
+    display: flex; gap: 7px; flex-wrap: wrap;
+  }
+  .quick-chip {
+    padding: 5px 13px; border-radius: 16px;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--muted); font-size: 0.76rem; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quick-chip:hover { border-color: var(--teal); color: var(--teal); background: rgba(62,201,196,0.08); }
+
+  /* ── INFO PANEL ── */
+  .info-panel {
+    width: 100%; max-width: 820px;
+    padding: 12px 20px 4px;
+    display: none; gap: 10px; flex-wrap: wrap;
+  }
+  .info-panel.visible { display: flex; }
+  .info-card {
+    flex: 1; min-width: 160px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px;
+  }
+  .info-card .label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .info-card .value { font-size: 0.85rem; color: var(--text); margin-top: 4px; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-circle">SIT</div>
+  <div class="header-text">
+    <h1>SymBot</h1>
+    <p>Symbiosis Institute of Technology, Nagpur — AI FAQ Assistant</p>
+  </div>
+  <div class="status-dot"></div>
+</header>
+
+<div class="steps-bar" id="stepsBar">
+  <div class="step-chip active" onclick="setStep(0)">All Steps</div>
+  <div class="step-chip" onclick="setStep(1)">Step 1: Rule-Based</div>
+  <div class="step-chip" onclick="setStep(2)">Step 2: Preprocessing</div>
+  <div class="step-chip" onclick="setStep(3)">Step 3: Synonyms</div>
+  <div class="step-chip" onclick="setStep(4)">Step 4: TF-IDF</div>
+  <div class="step-chip" onclick="setStep(5)">Step 5: Intent ML</div>
+  <div class="step-chip" onclick="setStep(6)">Step 6: Entities</div>
+</div>
+
+<div class="info-panel" id="infoPanel">
+  <div class="info-card">
+    <div class="label">Detected Intent</div>
+    <div class="value" id="infoIntent">—</div>
+  </div>
+  <div class="info-card">
+    <div class="label">Match Method</div>
+    <div class="value" id="infoMethod">—</div>
+  </div>
+  <div class="info-card">
+    <div class="label">Entities Found</div>
+    <div class="value" id="infoEntities">—</div>
+  </div>
+  <div class="info-card">
+    <div class="label">Processed Tokens</div>
+    <div class="value" id="infoTokens">—</div>
+  </div>
+</div>
+
+<div class="chat-wrapper">
+  <div class="chat-box" id="chatBox"></div>
+</div>
+
+<div class="quick-area">
+  <div class="quick-chip" onclick="send('What are the fee details?')">💰 Fees</div>
+  <div class="quick-chip" onclick="send('How to apply for admission?')">🎓 Admissions</div>
+  <div class="quick-chip" onclick="send('Tell me about hostel facility')">🏠 Hostel</div>
+  <div class="quick-chip" onclick="send('When is the exam schedule?')">📝 Exams</div>
+  <div class="quick-chip" onclick="send('What scholarships are available?')">🏆 Scholarships</div>
+  <div class="quick-chip" onclick="send('Which companies come for placement?')">💼 Placement</div>
+  <div class="quick-chip" onclick="send('What courses are offered?')">📚 Courses</div>
+  <div class="quick-chip" onclick="send('What is the WiFi speed on campus?')">📶 WiFi</div>
+</div>
+
+<div class="input-area">
+  <div class="input-wrap">
+    <textarea id="queryInput" rows="1" placeholder="Ask SymBot about SIT Nagpur..."
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+  </div>
+  <button class="send-btn" onclick="sendFromInput()" title="Send">➤</button>
+</div>
+
+<script>
+// ──────────────────────────────────────────────────────────────────────────
+// SymBot Brain (JavaScript port of all 6 Python steps)
+// ──────────────────────────────────────────────────────────────────────────
+
+// ── FAQ Database ──────────────────────────────────────────────────────────
+const FAQ = {
+  fees:        { patterns:["fee","fees","tuition","payment","charges","cost","expense","money","amount","pay","paying","afford","dues","deposit"], answer:"💰 Fee Structure at SIT Nagpur:\n• B.Tech (per year)  : ₹1,80,000 – ₹2,20,000 (branch-wise)\n• M.Tech (per year)  : ₹1,50,000 – ₹1,80,000\n• MBA (per year)     : ₹2,50,000\n• Payment modes      : Online / DD / Demand Draft\n• Last date          : Contact admissions office" },
+  timings:     { patterns:["timing","time","hours","open","close","schedule","when","working","morning","evening","shift"], answer:"🕘 SIT Nagpur Timings:\n• College Hours  : 9:00 AM – 5:00 PM (Mon–Sat)\n• Library        : 8:00 AM – 8:00 PM\n• Admin Office   : 10:00 AM – 4:00 PM\n• Saturday       : Half-day (till 1:00 PM)" },
+  admissions:  { patterns:["admission","admissions","apply","application","enroll","join","joining","entrance","jee","cet","cutoff","eligibility","seat","intake","register","form","document"], answer:"🎓 Admissions at SIT Nagpur:\n• B.Tech : via MHT-CET / JEE Main (CAP rounds)\n• M.Tech : via GATE score\n• MBA    : via MAH-MBA CET / CAT / MAT\n• Docs: 10th & 12th marksheets, entrance scorecard, Aadhaar, passport photo" },
+  hostel:      { patterns:["hostel","accommodation","stay","room","dorm","dormitory","pg","boarding","lodge","warden","residential","housing"], answer:"🏠 Hostel Facilities at SIT Nagpur:\n• Separate hostels for boys and girls\n• Amenities: Wi-Fi, mess, laundry, 24×7 security\n• Hostel Fee (per year): ₹60,000 – ₹80,000\n• Contact Hostel Warden: hostel@sitpune.edu.in" },
+  timetable:   { patterns:["timetable","class","lecture","period","slot","routine","lab","practical","session","daily","weekly"], answer:"📅 Timetable & Academics:\n• Timetable is on ERP portal: erp.sitpune.edu.in\n• Exam schedule shared 30 days before end-sem\n• Lab sessions: As per departmental schedule" },
+  scholarships:{ patterns:["scholarship","merit","financial aid","waiver","free","discount","stipend","grant","fellowship","ebc","obc","freeship"], answer:"🏆 Scholarships at SIT Nagpur:\n• Merit-based fee waiver for top 5 rankers\n• Government: EBC, OBC, SC/ST scholarships available\n• Sports quota benefits available\n• Contact: scholarship@sitpune.edu.in" },
+  courses:     { patterns:["course","branch","department","program","stream","engineering","btech","mtech","mba","specialization","subjects","curriculum"], answer:"📚 Courses at SIT Nagpur:\n• B.Tech: CS, IT, Mechanical, Civil, E&TC, AI&ML\n• M.Tech: CS, Mechanical, E&TC, Structural\n• MBA   : General, Marketing, Finance, HR\n• Also offers PhD programs" },
+  placement:   { patterns:["placement","job","recruit","company","campus","hire","hiring","salary","package","ctc","internship","intern","career","drive","offer"], answer:"💼 Placement at SIT Nagpur:\n• Highest CTC    : ₹12 LPA\n• Average CTC    : ₹5.5 LPA\n• Top Recruiters : TCS, Infosys, Wipro, Cognizant, L&T\n• Placement Cell : placement@sitpune.edu.in" },
+  library:     { patterns:["library","book","journal","read","borrow","digital","e-library","delnet","nptel","resource","periodical"], answer:"📖 Library at SIT Nagpur:\n• 20,000+ books and 5,000+ e-journals\n• NPTEL & DELNET access available\n• Timings: 8:00 AM – 8:00 PM\n• Digital Library: Open 24×7 via college portal" },
+  exam:        { patterns:["exam","test","assessment","result","mark","grade","paper","recheck","revaluation","backlog","atkt","supply","end-sem","mid-sem","internal"], answer:"📝 Examination Details:\n• Mid-sem  : 7th–8th week of each semester\n• End-sem  : Last 2 weeks of semester\n• Results  : Published within 30 days on ERP\n• Revaluation requests: Within 7 days of result" },
+  contact:     { patterns:["contact","phone","email","address","reach","call","number","location","helpline","website","portal"], answer:"📞 Contact SIT Nagpur:\n• Address : Wathoda Layout, Nagpur – 440008\n• Email   : admissions@sitpune.edu.in\n• Website : www.sitpune.edu.in" },
+  canteen:     { patterns:["canteen","food","cafeteria","meal","lunch","dinner","breakfast","eat","snack"], answer:"🍽️ Canteen & Mess:\n• Canteen  : 8:00 AM – 6:00 PM (veg & non-veg)\n• Mess Breakfast: 7–9 AM | Lunch: 12–2 PM | Dinner: 7–9 PM\n• Monthly mess charges: ~₹3,500" },
+  wifi:        { patterns:["wifi","internet","network","connectivity","broadband","online","connection","speed","bandwidth","hotspot"], answer:"📶 Internet at SIT Nagpur:\n• Campus-wide Wi-Fi (NKN connected)\n• Speed: 1 Gbps leased line\n• Login with your college credentials\n• IT helpdesk: it@sitpune.edu.in" },
+  principal:   { patterns:["principal","director","hod","dean","faculty","professor","staff","teacher","coordinator","administration","admin"], answer:"👨‍💼 Administration at SIT Nagpur:\n• HOD meetings: By appointment via department office\n• Faculty list: Available on college website\n• Grievance   : grievance@sitpune.edu.in" },
+};
+
+// ── Stopwords ──────────────────────────────────────────────────────────────
+const STOP = new Set(["i","me","my","we","our","you","your","he","him","she","her","it","its","they","their","what","which","who","this","that","is","are","was","were","be","been","have","has","do","does","a","an","the","and","but","if","or","of","at","by","for","with","to","from","in","on","how","when","where","please","tell","want","need","get","hi","hello","hey","sir","madam","about","any","know","give","let","dear","bot","symbot","nagpur","sit","college"]);
+
+// Spelling corrections
+const SPELL = {"fess":"fees","feees":"fees","addmission":"admission","hostle":"hostel","timetble":"timetable","scolarship":"scholarship","placment":"placement","libraray":"library","wifii":"wifi","exem":"exam","cource":"course","cources":"courses","cannteen":"canteen","principel":"principal"};
+
+// ── STEP 2: Preprocessing ──────────────────────────────────────────────────
+function preprocess(text) {
+  let t = text.toLowerCase().replace(/[^\w\s]/g,' ');
+  let tokens = t.split(/\s+/).filter(w => w.length > 1 && !STOP.has(w) && isNaN(w));
+  tokens = tokens.map(w => SPELL[w] || w);
+  return tokens;
+}
+
+// ── STEP 3: Synonym match ─────────────────────────────────────────────────
+function synonymMatch(tokens) {
+  for (const [intent, data] of Object.entries(FAQ)) {
+    for (const pat of data.patterns) {
+      if (tokens.includes(pat)) return intent;
+    }
+  }
+  return null;
+}
+
+// ── STEP 4: TF-IDF ───────────────────────────────────────────────────────
+const TF_CORPUS = [
+  {q:"college timings office hours working schedule",    intent:"timings"},
+  {q:"fee structure tuition payment charges cost amount",intent:"fees"},
+  {q:"admission apply eligibility entrance jee cet form",intent:"admissions"},
+  {q:"hostel accommodation boys girls room stay boarding",intent:"hostel"},
+  {q:"timetable class lecture period erp portal schedule",intent:"timetable"},
+  {q:"scholarship financial aid merit waiver ebc obc",   intent:"scholarships"},
+  {q:"course branch btech mtech mba engineering programs",intent:"courses"},
+  {q:"placement job company campus hire salary ctc tcs",  intent:"placement"},
+  {q:"library books journals digital nptel delnet",       intent:"library"},
+  {q:"exam test result marks grade mid sem end sem atkt", intent:"exam"},
+  {q:"contact phone email address website helpline",      intent:"contact"},
+  {q:"canteen food meal cafeteria lunch dinner mess",     intent:"canteen"},
+  {q:"wifi internet network speed broadband connectivity",intent:"wifi"},
+  {q:"principal director hod faculty dean administration",intent:"principal"},
+];
+
+function tfIdfMatch(query) {
+  const qtok = preprocess(query);
+  let best = null, bestScore = 0;
+  for (const doc of TF_CORPUS) {
+    const dtok = preprocess(doc.q);
+    const dset = new Set(dtok);
+    let overlap = qtok.filter(t => dset.has(t)).length;
+    const score = overlap / (Math.sqrt(dtok.length) * Math.sqrt(qtok.length) + 1e-9);
+    if (score > bestScore) { bestScore = score; best = doc.intent; }
+  }
+  return bestScore > 0.05 ? best : null;
+}
+
+// ── STEP 5: Intent classifier (keyword-weighted) ──────────────────────────
+const INTENT_KEYWORDS = {
+  admissions:   ["admission","apply","join","jee","cet","cutoff","enroll","eligibility","registration","form","intake","seat"],
+  exams:        ["exam","result","grade","mark","revaluation","backlog","atkt","supply","mid-sem","end-sem","internal","pass"],
+  timetable:    ["timetable","class","lecture","period","slot","lab","practical","erp","routine"],
+  hostel:       ["hostel","accommodation","stay","room","dorm","warden","mess","boarding"],
+  scholarships: ["scholarship","merit","waiver","aid","ebc","obc","freeship","stipend","grant"],
+  placement:    ["placement","job","company","recruit","hire","salary","ctc","internship","campus","drive"],
+  general_info: ["timing","fee","contact","canteen","wifi","library","course","faculty","campus"],
+};
+
+function intentClassify(tokens) {
+  let scores = {};
+  for (const [intent, kws] of Object.entries(INTENT_KEYWORDS)) {
+    scores[intent] = tokens.filter(t => kws.includes(t)).length;
+  }
+  const best = Object.entries(scores).sort((a,b)=>b[1]-a[1])[0];
+  return best[1] > 0 ? best[0] : null;
+}
+
+// ── STEP 6: Entity extraction ─────────────────────────────────────────────
+function extractEntities(text) {
+  const found = {};
+  const dates = text.match(/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s\d{4}\b/gi);
+  if (dates) found["📅 Date"] = dates.join(", ");
+  const codes = text.match(/\b(?:CS|IT|ME|CE|EC|AI|ML|MBA)\b/gi);
+    if (codes) found["🏷️ Code"] = codes.join(", ");
+    const names = text.match(/\b[A-Z][a-z]+(?:\s[A-Z][a-z]+)*\b/g);
+    if (names) found["👤 Name"] = names.join(", ");
+    return found;
+}
