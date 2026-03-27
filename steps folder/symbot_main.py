@@ -6,7 +6,6 @@ Symbiosis Institute of Technology, Nagpur
 import sys
 import os
 
-# Fix: Add the symbot root folder to Python path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 # Fix: Add the steps folder to Python path
